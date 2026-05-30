@@ -31,3 +31,6 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### MacOS data storage
+.DS_Store
