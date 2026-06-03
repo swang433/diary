@@ -40,6 +40,9 @@ public class Entry {
 
     private LocalDate Date; 
 
+    //protected empty constructor for loading form DB
+    protected Entry() {}
+
     public Entry(long entryID, String entryTitle, String entryContent, User entryUser, LocalDate entryDate)
     {
         this.Id = entryID; 
