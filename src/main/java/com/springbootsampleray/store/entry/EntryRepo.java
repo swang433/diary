@@ -1,6 +1,7 @@
 package com.springbootsampleray.store.entry;
-import com.springbootsampleray.store.entry.Entry;;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-public class EntryRepo {
+public interface EntryRepo extends JpaRepository<Entry, Long>
+{
     
 }

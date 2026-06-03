@@ -1,5 +1,13 @@
 package com.springbootsampleray.store.user;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+// import java.util.List;
 
-public class UserRepo {
-    
+@Repository
+public interface UserRepo extends JpaRepository<User, Long>
+{
+    public User findByUsername(String uName); 
+    public User getUserbyID(long Id); 
 }
+
+

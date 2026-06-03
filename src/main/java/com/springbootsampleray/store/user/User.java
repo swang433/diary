@@ -10,11 +10,15 @@ import jakarta.persistence.GenerationType;
 import java.util.List;
 import jakarta.persistence.CascadeType;
 import com.springbootsampleray.store.entry.Entry;
+import lombok.Getter;
+import lombok.Setter;
 
 
 @Entity
 @Table(name = "users")
 
+@Getter
+@Setter
 public class User
 {
     @Id //primary key of the user class
@@ -33,28 +37,4 @@ public class User
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Entry> entries;
-
-    public long getId() {
-        return id;
-    }
-
-    public String getUserName() {
-        return userName;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public int getCurrStreak() {
-        return currStreak;
-    }
-
-    public int getLongestStreak() {
-        return longestStreak;
-    }
-
-    public LocalDate getLastEntryDate() {
-        return lastEntryDate;
-    }
 }
