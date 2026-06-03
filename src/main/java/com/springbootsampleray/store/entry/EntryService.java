@@ -18,9 +18,9 @@ public class EntryService
         this.entry_repository = ERepo;  
     }
 
-    public void saveEntry(long entryId, String title, String content)
+    public void saveEntry(long userID, String title, String content)
     {
-        User currUser = user_repository.findById(entryId).orElseThrow(() -> new RuntimeException("User not found"));
+        User currUser = user_repository.findById(userID).orElseThrow(() -> new RuntimeException("User not found"));
         //maps to ID = 0 since the DB generates it
         Entry new_entry = new Entry(0, title, content, currUser, LocalDate.now());  
         //saves to db here
