@@ -38,6 +38,7 @@ public class Entry {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    //no getter or setter here so the date cannot be modified at
     private LocalDate Date; 
 
     //protected empty constructor for loading form DB

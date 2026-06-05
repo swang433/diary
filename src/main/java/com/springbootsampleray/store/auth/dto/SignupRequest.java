@@ -1,6 +1,6 @@
 package com.springbootsampleray.store.auth.dto;
 
-public class LoginRequest {
+public class SignupRequest {
     private String username; 
     private String password; 
 }
@@ -14,3 +14,4 @@ public String getPassword()
 {
     return this.password; 
 }
+
