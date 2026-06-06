@@ -1,6 +1,4 @@
 package com.springbootsampleray.store.auth;
-
-import com.springbootsampleray.store.security.JwtUtil;
 import com.springbootsampleray.store.user.UserService;
 
 //RestController, RequestMapping, PostMapping, RequestBody
@@ -46,6 +44,4 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new AuthResponse("Login failed", e.getMessage())); 
         }
     }
-    
-    
 }
