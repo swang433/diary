@@ -28,7 +28,8 @@ public class AuthController {
         }
         catch(Exception e){
             log.error("Error during signup: {}", e.getMessage()); 
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new AuthResponse("Signed up failed", e.getMessage()));
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            .body(new AuthResponse("Signed up failed", e.getMessage()));
         }
     }
 
@@ -41,7 +42,8 @@ public class AuthController {
         }
         catch(Exception e){
             log.error("Error during login: {}", e.getMessage()); 
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new AuthResponse("Login failed", e.getMessage())); 
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+            .body(new AuthResponse("Login failed", e.getMessage())); 
         }
     }
 }

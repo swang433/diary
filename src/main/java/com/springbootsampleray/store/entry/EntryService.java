@@ -20,7 +20,8 @@ public class EntryService
 
     public void saveEntry(long userID, String title, String content)
     {
-        User currUser = user_repository.findById(userID).orElseThrow(() -> new RuntimeException("User not found"));
+        User currUser = user_repository.findById(userID).orElseThrow(() -> 
+        new RuntimeException("User not found"));
         //maps to ID = 0 since the DB generates it
         Entry new_entry = new Entry(0, title, content, currUser, LocalDate.now());  
         //saves to db here
@@ -29,7 +30,8 @@ public class EntryService
 
     public List<Entry> getEntriesByUser(long userID)
     {
-        User currUser = user_repository.findById(userID).orElseThrow(() -> new RuntimeException("User not found"));
+        User currUser = user_repository.findById(userID).orElseThrow(() -> 
+        new RuntimeException("User not found"));
         return currUser.getEntries(); 
     }
 }

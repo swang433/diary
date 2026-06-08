@@ -2,11 +2,13 @@ package com.springbootsampleray.store.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.SecurityFilterChain;;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;;
 
 /*
 this file tells spring security how to handle http security requests
@@ -17,6 +19,12 @@ also allows JwtUtil.java to inject the password encoder bean
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
+    private final JwtUtil jwtUtil;
+
+    SecurityConfig(JwtUtil jwtUtil) {
+        this.jwtUtil = jwtUtil;
+    }
+
     @Bean
     public PasswordEncoder Encoder()
     {
@@ -29,7 +37,7 @@ public class SecurityConfig {
         http.authorizeHttpRequests(auth -> auth
             .requestMatchers("/auth/**").permitAll()
             .anyRequest().authenticated()
-        ).csrf(crsf -> crsf.disable());
+        ).csrf(crsf -> crsf.disable()).addFilterBefore(jwtUtil, UsernamePasswordAuthenticationFilter.class);
         
         return http.build(); 
     }
