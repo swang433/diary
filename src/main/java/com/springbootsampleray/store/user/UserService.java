@@ -1,13 +1,18 @@
 package com.springbootsampleray.store.user;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import com.springbootsampleray.store.auth.dto.SignupRequest;
 import com.springbootsampleray.store.security.JwtUtil;
+import java.util.ArrayList;
+// import org.springframework.security.core.userdetails.User;
 
 @Service
-public class UserService {
+public class UserService implements UserDetailsService{
     @Autowired
     private UserRepo URepo;
     @Autowired 
@@ -52,6 +57,22 @@ public class UserService {
             {
                 return Encrypt.generateToken(username); 
             }
+        }
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException
+    {
+        if (URepo.findByUsername(username) == null)
+        {   
+            throw new UsernameNotFoundException("User not found found in the system."); 
+        }
+        else
+        {
+            User CurrUser = URepo.findByUsername(username); 
+            return new org.springframework.security.core.userdetails.User(username, 
+                CurrUser.getPassword(), 
+                new ArrayList<>()); 
         }
     }
 }
