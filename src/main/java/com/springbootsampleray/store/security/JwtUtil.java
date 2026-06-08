@@ -1,15 +1,15 @@
 package com.springbootsampleray.store.security;
 
-import com.springbootsampleray.store.user.UserRepo;
 import java.util.Date;
-import java.time.Instant;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Value;
 
 @Component
 public class JwtUtil {
-    private static final String SECRET_KEY = "there are consequences for killing a god";
+    @Value("${jwt.secret}") //read from application properties
+    private String SECRET_KEY; 
 
     public String generateToken(String Username)
     {
@@ -30,12 +30,12 @@ public class JwtUtil {
                 .sign(algo); 
     }
 
-    public String extractUsername(String token)
+    public String extractUsername(String token) //FIX ME!!!
     {
         return "Username extraction placeholder"; 
     }
 
-    public boolean isTokenValid(String token)
+    public boolean isTokenValid(String token) //FIX ME!!!
     {
         return false; 
     }
