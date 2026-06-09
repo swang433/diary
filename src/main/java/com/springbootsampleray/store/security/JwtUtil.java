@@ -43,7 +43,6 @@ public class JwtUtil {
 
             JWTVerifier MyVerifier = JWT.require(algo)
                 .withIssuer("Ray's Diary App")
-                .withAudience("Diary app users")
                 .acceptLeeway(1)
                 .build();
             

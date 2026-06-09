@@ -35,34 +35,32 @@ public class JwtFilter extends OncePerRequestFilter{
     {
         String authHeader = req.getHeader("Authorization"); 
 
-        try
+        if (authHeader == null)
         {
-            if (authHeader.startsWith("Bearer "))
-            {
-                String token_raw = authHeader.substring(6); 
-                String username = jwtUtil.extractUsername(token_raw); 
-                
-                if (username != null)
-                {
-                    //creata a username password authentication token
-                    SecurityContext context = SecurityContextHolder.createEmptyContext(); 
-                    UserDetails CurrUser = Uservice.loadUserByUsername(username); 
-                    Authentication authentication = new UsernamePasswordAuthenticationToken(
-                        CurrUser, 
-                        null, 
-                        CurrUser.getAuthorities()
-                    ); 
-                    context.setAuthentication(authentication);
-                    SecurityContextHolder.setContext(context);
-                }
+            chain.doFilter(req, response); //next state/request
+            return; 
+        }
 
-                logger.info("Successfully authenticated user" + authHeader); 
-                chain.doFilter(req, response);
-            }    
-        }
-        catch (NullPointerException e)
+        if (authHeader.startsWith("Bearer "))
         {
-            System.out.println("Error: authorization header is null " + e.getMessage()); 
-        }
+            String token_raw = authHeader.substring(7); 
+            String username = jwtUtil.extractUsername(token_raw); 
+            
+            if (username != null)
+            {
+                //creata a username password authentication token
+                SecurityContext context = SecurityContextHolder.createEmptyContext(); 
+                UserDetails CurrUser = Uservice.loadUserByUsername(username); 
+                Authentication authentication = new UsernamePasswordAuthenticationToken(
+                    CurrUser, 
+                    null, 
+                    CurrUser.getAuthorities()
+                ); 
+                context.setAuthentication(authentication);
+                SecurityContextHolder.setContext(context);
+            }
+        }    
+        logger.info("Successfully authenticated user" + authHeader); 
+        chain.doFilter(req, response);
     }
 }
