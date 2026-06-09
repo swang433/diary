@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 import com.springbootsampleray.store.auth.dto.SignupRequest;
 import com.springbootsampleray.store.security.JwtUtil;
 import java.util.ArrayList;
-// import org.springframework.security.core.userdetails.User;
 
 @Service
 public class UserService implements UserDetailsService{
