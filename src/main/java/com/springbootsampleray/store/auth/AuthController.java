@@ -9,7 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-
+import java.lang.System.Logger;
 
 @Slf4j
 @RestController
@@ -17,17 +17,18 @@ import org.springframework.http.ResponseEntity;
 public class AuthController {
     @Autowired
     public UserService userService; 
+    public static final Logger logger = System.getLogger(AuthController.class.getName()); 
 
     @PostMapping("/signup")
     public ResponseEntity<AuthResponse> signup(@RequestBody SignupRequest userReq)
     {
         try{
-            log.info("Signing up new user: {}", userReq.getUsername()); 
+            logger.log(System.Logger.Level.INFO, "Sign in attempt: " + userReq.getUsername()); 
             String token = userService.signup(userReq); 
             return ResponseEntity.ok(new AuthResponse("User signed up successfully. ", token)); 
         }
         catch(Exception e){
-            log.error("Error during signup: {}", e.getMessage()); 
+            logger.log(System.Logger.Level.ERROR, "Error during sign up. "); 
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
             .body(new AuthResponse("Signed up failed", e.getMessage()));
         }
@@ -36,12 +37,12 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest userReq){
         try{
-            log.info("Logging in user {}", userReq.getUsername()); 
+            logger.log(System.Logger.Level.INFO, "Login attempt: " + userReq.getUsername()); 
             String token = userService.login(userReq.getUsername(), userReq.getPassword()); 
             return ResponseEntity.ok(new AuthResponse("Login successful.", token)); 
         }
         catch(Exception e){
-            log.error("Error during login: {}", e.getMessage()); 
+            logger.log(System.Logger.Level.ERROR, "Error during login. ");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
             .body(new AuthResponse("Login failed", e.getMessage())); 
         }
