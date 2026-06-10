@@ -6,7 +6,7 @@ import com.springbootsampleray.store.user.UserRepo;
 import com.springbootsampleray.store.user.User;
 
 @Service
-public class EntryService 
+public class EntryService //TODO: possibly need to throw exception here for the controller to catch it
 {   
     private final EntryRepo entry_repository;
     private final UserRepo user_repository; 
