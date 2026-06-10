@@ -4,18 +4,13 @@ package com.springbootsampleray.store.entry;
 import org.springframework.web.bind.annotation.*;
 import java.lang.System.Logger;
 import java.lang.annotation.Repeatable;
+import java.time.LocalDate;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import com.springbootsampleray.store.entry.EntryService;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import com.springbootsampleray.store.entry.Entry;
 
 
@@ -32,13 +27,15 @@ role: returns entries or a success message
 public class EntryController {
     @Autowired
     public EntryRepo ERepo;
+    @Autowired
+    public EntryService EService; 
     public static final Logger logger = System.getLogger(EntryController.class.getName()); 
 
     @PostMapping("newjournal") //creating a new entry
-    public String postMethodName(@RequestBody String entity) {
+    public void createEntry(String title, String content) {
         //TODO: process POST request
-        
-        return entity;
+        //FIX ME AND WORK FROM HERE
+        EService.saveEntry(0, title, content);
     }
 
     @GetMapping("/{id}") //retrieving a past entry

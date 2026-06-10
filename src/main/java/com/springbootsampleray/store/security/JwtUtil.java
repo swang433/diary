@@ -8,8 +8,6 @@ import com.auth0.jwt.JWTVerifier;
 import org.springframework.stereotype.Component;
 import org.springframework.beans.factory.annotation.Value;
 
-//WORK FROM HERE
-
 @Component
 public class JwtUtil {
     @Value("${jwt.secret}") //read from application properties
