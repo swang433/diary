@@ -50,7 +50,7 @@ Docker
   docker run -e DATABASE_URL=... -e DATABASE_USER=... -e DATABASE_PASSWORD=... -e JWT_SECRET=... -p 8080:8080 diary-service
 
 API (summary)
-- POST /api/auth/register — create account
+- POST /api/auth/signup — create account
 - POST /api/auth/login — returns JWT
 - GET /api/users/me — get current user
 - GET /api/entries — list entries (query by date, visibility)
@@ -76,11 +76,3 @@ MVP checklist (current)
 - [ ] Leaderboard (global)
 - [ ] Privacy for entries
 - [ ] Basic UI for journal and leaderboard
-
-Contributing
-- Open issues and PRs welcome. Follow code style and add tests for new behavior.
-
-License
-- See LICENSE or add one if missing.
-
-If you want, I can add example curl requests for the API or generate Postman / OpenAPI specs next.
