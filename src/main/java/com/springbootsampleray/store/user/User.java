@@ -10,15 +10,14 @@ import jakarta.persistence.GenerationType;
 import java.util.List;
 import jakarta.persistence.CascadeType;
 import com.springbootsampleray.store.entry.Entry;
-import lombok.Getter;
-import lombok.Setter;
+
+import lombok.Data;
 
 
 @Entity
 @Table(name = "users")
 
-@Getter
-@Setter
+@Data
 public class User
 {
     @Id //primary key of the user class
