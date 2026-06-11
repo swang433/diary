@@ -1,6 +1,8 @@
 package com.springbootsampleray.store.entry;
 import java.time.LocalDate;
-import java.util.List; 
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.stereotype.Service;
 import com.springbootsampleray.store.user.UserRepo;
 import com.springbootsampleray.store.user.User;
@@ -18,10 +20,13 @@ public class EntryService //TODO: possibly need to throw exception here for the 
         this.entry_repository = ERepo;  
     }
 
-    public void saveEntry(long userID, String title, String content)
+    public void saveEntry(String username, String title, String content)
     {
-        User currUser = user_repository.findById(userID).orElseThrow(() -> 
-        new RuntimeException("User not found"));
+        User currUser = user_repository.findByUsername(username);
+        if (currUser == null)
+        {   
+            throw new RuntimeException("User not found. ");
+        }
         //maps to ID = 0 since the DB generates it
         Entry new_entry = new Entry(0, title, content, currUser, LocalDate.now());  
         //saves to db here
@@ -33,5 +38,27 @@ public class EntryService //TODO: possibly need to throw exception here for the 
         User currUser = user_repository.findById(userID).orElseThrow(() -> 
         new RuntimeException("User not found"));
         return currUser.getEntries(); 
+    }
+
+    public Optional<Entry> findEntry(long entryId)
+    {
+        return entry_repository.findById(entryId); 
+    }
+
+    //TODO: the two edit functions both hit the DB, needs optimizing eventually
+    public void editContent(long entryId, String newContent)
+    {
+        Entry thisEntry = entry_repository.findById(entryId)
+        .orElseThrow(() -> new RuntimeException("Entry not found. ")); 
+        thisEntry.setContent(newContent);
+        entry_repository.save(thisEntry); 
+    }
+
+    public void editTitle(long entryId, String newTitle)
+    {
+        Entry thisEntry = entry_repository.findById(entryId)
+        .orElseThrow(() -> new RuntimeException("Entry not found. ")); 
+        thisEntry.setTitle(newTitle);
+        entry_repository.save(thisEntry); 
     }
 }

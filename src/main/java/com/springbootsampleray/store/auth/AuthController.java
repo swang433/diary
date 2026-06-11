@@ -6,7 +6,6 @@ import org.springframework.web.bind.annotation.*;
 //register request, login request, and auth response
 import com.springbootsampleray.store.auth.dto.*;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import java.lang.System.Logger;
@@ -15,9 +14,13 @@ import java.lang.System.Logger;
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
-    @Autowired
-    public UserService userService; 
+    private final UserService userService; 
     public static final Logger logger = System.getLogger(AuthController.class.getName()); 
+
+    public AuthController(UserService UService)
+    {
+        this.userService = UService; 
+    }
 
     @PostMapping("/signup")
     public ResponseEntity<AuthResponse> signup(@RequestBody SignupRequest userReq)

@@ -2,16 +2,15 @@ package com.springbootsampleray.store.entry;
 
 //RestController, RequestMapping, PostMapping, RequestBody
 import org.springframework.web.bind.annotation.*;
-import java.lang.System.Logger;
-import java.lang.annotation.Repeatable;
-import java.time.LocalDate;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
+import java.lang.System.Logger;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import com.springbootsampleray.store.entry.EntryService;
-import com.springbootsampleray.store.entry.Entry;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
+
+import com.springbootsampleray.store.auth.dto.*;;
 
 
 /*
@@ -25,27 +24,49 @@ role: returns entries or a success message
 @RestController
 @RequestMapping("/entries")
 public class EntryController {
-    @Autowired
-    public EntryRepo ERepo;
-    @Autowired
-    public EntryService EService; 
+    private final EntryService EService; 
     public static final Logger logger = System.getLogger(EntryController.class.getName()); 
 
-    @PostMapping("newjournal") //creating a new entry
-    public void createEntry(String title, String content) {
-        //TODO: process POST request
-        //FIX ME AND WORK FROM HERE
-        EService.saveEntry(0, title, content);
+    public EntryController(EntryService eService)
+    {
+        this.EService = eService; 
     }
 
-    @GetMapping("/{id}") //retrieving a past entry
-    public ResponseEntity<Entry> getEntry(@PathVariable long id) //retrieve an entry obj and wrap it in a response entity
+    @PostMapping("newjournal") 
+    //creating a new entry
+    public ResponseEntity<EntryResponse> saveEntryResponse(@RequestBody EntryRequest entryReq, 
+        @AuthenticationPrincipal UserDetails creds)
     {
         try
         {
-            logger.log(System.Logger.Level.INFO, "Retrieving entry number: " + Long.toString(id)); 
-            Entry thisEntry = ERepo.findById(id).orElseThrow(() -> new RuntimeException("Entry not found.")); 
-            return ResponseEntity.ok(thisEntry); 
+            String currUsername = creds.getUsername(); 
+            logger.log(System.Logger.Level.INFO, "Entry save attempt by " + currUsername); 
+            EService.saveEntry(currUsername, entryReq.getTitle(), entryReq.getContent());
+            return ResponseEntity.ok(new EntryResponse("Entry creation for user " + currUsername + " successful. ")); 
+        }
+        catch (Exception e)
+        {
+            logger.log(System.Logger.Level.ERROR, "Error creating a new journal entry. ");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            .body(new EntryResponse("Entry creation failed " + e.getMessage())); 
+        }
+    }
+
+    @GetMapping("/{entryId}") //retrieving a past entry
+    public ResponseEntity<EntryResponse> findEntryResponse(@PathVariable long entryId) 
+    //retrieve an entry obj and wrap it in a response entity
+    {
+        try
+        {
+            logger.log(System.Logger.Level.INFO, "Retrieving entry number: " + Long.toString(entryId)); 
+            return EService.findEntry(entryId)
+            .map
+            (entry -> ResponseEntity.ok
+                (
+                    new EntryResponse("Successfully retrieved entry number " + Long.toString(entry.getId()))
+                )
+            )
+            .orElse(ResponseEntity.notFound().build());
         }
         catch(Exception e)
         {
@@ -54,13 +75,37 @@ public class EntryController {
         }
     }
     
-    @PutMapping("/{id}") //editing a past entry
-    public String putMethodName(@PathVariable String id, @RequestBody String entity) {
-        //TODO: process PUT request
+    @PutMapping("/{entryId}")
+    public ResponseEntity<EntryResponse> updateEntryResponse(@PathVariable long entryId
+        , @RequestBody EntryRequest entryReq
+        , @AuthenticationPrincipal UserDetails creds) {   
         
-        return entity;
+        try
+        {
+            logger.log(System.Logger.Level.INFO, "Retrieving entry number for editing : " + Long.toString(entryId)); 
+
+            //null checks for new title and or content
+            String newContent = entryReq.getContent();
+            String newTitle = entryReq.getTitle();  
+            if (newContent != null)
+            {
+                EService.editContent(entryId, newContent);
+            }
+
+            if (newTitle != null)
+            {
+                EService.editTitle(entryId, newTitle);
+            } 
+
+            return ResponseEntity.ok(new EntryResponse("Successfully retrieved and edited entry number " + Long.toString(entryId))); 
+        }
+        catch (Exception e)
+        {
+            logger.log(System.Logger.Level.ERROR, "Unable to retrieve or edit entry number " + Long.toString(entryId)); 
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null); 
+        }
     }
 
-    //TODO: delete mapping function
+    //TODO: delete mapping function WORK FROM HERE
     
 }
