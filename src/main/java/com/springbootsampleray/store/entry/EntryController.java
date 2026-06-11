@@ -2,7 +2,6 @@ package com.springbootsampleray.store.entry;
 
 //RestController, RequestMapping, PostMapping, RequestBody
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import java.lang.System.Logger;
 import org.springframework.http.HttpStatus;
@@ -107,5 +106,5 @@ public class EntryController {
     }
 
     //TODO: delete mapping function WORK FROM HERE
-    
+    //WORK FROM HERE
 }
