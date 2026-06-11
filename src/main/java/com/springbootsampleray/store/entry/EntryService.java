@@ -21,6 +21,7 @@ public class EntryService //TODO: possibly need to throw exception here for the 
     }
 
     public void saveEntry(String username, String title, String content)
+    //TODO: needs to update last entry date for streak re-calculation
     {
         User currUser = user_repository.findByUsername(username);
         if (currUser == null)
