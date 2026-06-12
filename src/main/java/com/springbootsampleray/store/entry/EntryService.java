@@ -10,20 +10,20 @@ import com.springbootsampleray.store.user.User;
 @Service
 public class EntryService //TODO: possibly need to throw exception here for the controller to catch it
 {   
-    private final EntryRepo entry_repository;
-    private final UserRepo user_repository; 
+    private final EntryRepo ERepo;
+    private final UserRepo URepo; 
 
-    // constructor injection; can now call user_repository throughout this class
+    // constructor injection; can now call URepo throughout this class
     public EntryService(UserRepo URepo, EntryRepo ERepo)
     {
-        this.user_repository = URepo;
-        this.entry_repository = ERepo;  
+        this.URepo = URepo;
+        this.ERepo = ERepo;  
     }
 
     public void saveEntry(String username, String title, String content)
     //TODO: needs to update last entry date for streak re-calculation
     {
-        User currUser = user_repository.findByUsername(username);
+        User currUser = URepo.findByUsername(username);
         if (currUser == null)
         {   
             throw new RuntimeException("User not found. ");
@@ -31,35 +31,44 @@ public class EntryService //TODO: possibly need to throw exception here for the 
         //maps to ID = 0 since the DB generates it
         Entry new_entry = new Entry(0, title, content, currUser, LocalDate.now());  
         //saves to db here
-        entry_repository.save(new_entry); 
+        ERepo.save(new_entry); 
     }
 
     public List<Entry> getEntriesByUser(long userID)
     {
-        User currUser = user_repository.findById(userID).orElseThrow(() -> 
+        User currUser = URepo.findById(userID).orElseThrow(() -> 
         new RuntimeException("User not found"));
         return currUser.getEntries(); 
     }
 
     public Optional<Entry> findEntry(long entryId)
     {
-        return entry_repository.findById(entryId); 
+        return ERepo.findById(entryId); 
     }
 
     //TODO: the two edit functions both hit the DB, needs optimizing eventually
     public void editContent(long entryId, String newContent)
     {
-        Entry thisEntry = entry_repository.findById(entryId)
+        Entry thisEntry = ERepo.findById(entryId)
         .orElseThrow(() -> new RuntimeException("Entry not found. ")); 
         thisEntry.setContent(newContent);
-        entry_repository.save(thisEntry); 
+        ERepo.save(thisEntry); 
     }
 
     public void editTitle(long entryId, String newTitle)
     {
-        Entry thisEntry = entry_repository.findById(entryId)
+        Entry thisEntry = ERepo.findById(entryId)
         .orElseThrow(() -> new RuntimeException("Entry not found. ")); 
         thisEntry.setTitle(newTitle);
-        entry_repository.save(thisEntry); 
+        ERepo.save(thisEntry); 
+    }
+
+    public void deleteEntry(long entryId)
+    {
+        if (ERepo.existsById(entryId))
+        {
+            throw new RuntimeException("Entry not found"); 
+        }
+        ERepo.deleteById(entryId);
     }
 }

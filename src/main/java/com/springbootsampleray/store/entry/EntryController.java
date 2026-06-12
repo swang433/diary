@@ -4,6 +4,8 @@ package com.springbootsampleray.store.entry;
 import org.springframework.web.bind.annotation.*;
 
 import java.lang.System.Logger;
+
+import org.apache.catalina.connector.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -55,9 +57,10 @@ public class EntryController {
     public ResponseEntity<EntryResponse> findEntryResponse(@PathVariable long entryId) 
     //retrieve an entry obj and wrap it in a response entity
     {
+        String EntryIdString = Long.toString(entryId);
         try
         {
-            logger.log(System.Logger.Level.INFO, "Retrieving entry number: " + Long.toString(entryId)); 
+            logger.log(System.Logger.Level.INFO, "Retrieving entry number: " + EntryIdString); 
             return EService.findEntry(entryId)
             .map
             (entry -> ResponseEntity.ok
@@ -74,14 +77,16 @@ public class EntryController {
         }
     }
     
-    @PutMapping("/{entryId}")
+    @PutMapping("/{entryId}") //editing a past entry
     public ResponseEntity<EntryResponse> updateEntryResponse(@PathVariable long entryId
         , @RequestBody EntryRequest entryReq
         , @AuthenticationPrincipal UserDetails creds) {   
-        
+        String EntryIdString = Long.toString(entryId);
         try
         {
-            logger.log(System.Logger.Level.INFO, "Retrieving entry number for editing : " + Long.toString(entryId)); 
+            logger.log(System.Logger.Level.INFO, "Retrieving entry number for editing : "
+             + EntryIdString
+             + " by user " + creds.getUsername() + "."); 
 
             //null checks for new title and or content
             String newContent = entryReq.getContent();
@@ -96,15 +101,31 @@ public class EntryController {
                 EService.editTitle(entryId, newTitle);
             } 
 
-            return ResponseEntity.ok(new EntryResponse("Successfully retrieved and edited entry number " + Long.toString(entryId))); 
+            return ResponseEntity.ok(new EntryResponse("Successfully retrieved and edited entry number " + EntryIdString)); 
         }
         catch (Exception e)
         {
-            logger.log(System.Logger.Level.ERROR, "Unable to retrieve or edit entry number " + Long.toString(entryId)); 
+            logger.log(System.Logger.Level.ERROR, "Unable to retrieve or edit entry number " + EntryIdString + " because " + e.getMessage()); 
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null); 
         }
     }
 
-    //TODO: delete mapping function WORK FROM HERE
-    //WORK FROM HERE
+    @DeleteMapping("/{entryId}") //deleting an existing entry
+    public ResponseEntity<EntryResponse> deleteEntryResponse(@PathVariable long entryId
+        , @RequestBody EntryRequest req
+        , @AuthenticationPrincipal UserDetails creds)
+        {
+            String EntryIdString = Long.toString(entryId);
+            try 
+            {
+                logger.log(System.Logger.Level.INFO, "Deleting entry number " + EntryIdString); 
+                EService.deleteEntry(entryId);
+                return ResponseEntity.ok(new EntryResponse("Successfully deleted entry number " + EntryIdString + "."));
+            }
+            catch (Exception e)
+            {
+                logger.log(System.Logger.Level.ERROR, "Unable to delete entry number " + EntryIdString + " because " + e.getMessage() + ".");
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null); 
+            }
+        }
 }
