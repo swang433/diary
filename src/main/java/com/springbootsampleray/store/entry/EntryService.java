@@ -65,7 +65,7 @@ public class EntryService //TODO: possibly need to throw exception here for the 
 
     public void deleteEntry(long entryId)
     {
-        if (ERepo.existsById(entryId))
+        if (!ERepo.existsById(entryId))
         {
             throw new RuntimeException("Entry not found"); 
         }

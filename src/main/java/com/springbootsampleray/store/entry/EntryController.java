@@ -112,7 +112,6 @@ public class EntryController {
 
     @DeleteMapping("/{entryId}") //deleting an existing entry
     public ResponseEntity<EntryResponse> deleteEntryResponse(@PathVariable long entryId
-        , @RequestBody EntryRequest req
         , @AuthenticationPrincipal UserDetails creds)
         {
             String EntryIdString = Long.toString(entryId);
