@@ -1,8 +1,11 @@
 package com.springbootsampleray.store.auth.dto;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+
 import jakarta.annotation.Nullable;
 import lombok.Data;
 
 @Data
+@JsonPropertyOrder({"message", "title", "content"})
 public class EntryReadResponse {
     private String message; 
     @Nullable
