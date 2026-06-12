@@ -39,6 +39,7 @@ public class Entry {
     private User user;
 
     //no getter or setter here so the date cannot be modified at
+    @Getter
     private LocalDate Date; 
 
     //protected empty constructor for loading form DB

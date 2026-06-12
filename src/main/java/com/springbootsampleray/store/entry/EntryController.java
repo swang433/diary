@@ -4,8 +4,6 @@ package com.springbootsampleray.store.entry;
 import org.springframework.web.bind.annotation.*;
 
 import java.lang.System.Logger;
-
-import org.apache.catalina.connector.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -33,7 +31,7 @@ public class EntryController {
         this.EService = eService; 
     }
 
-    @PostMapping("newjournal") 
+    @PostMapping("/newjournal") 
     //creating a new entry
     public ResponseEntity<EntryResponse> saveEntryResponse(@RequestBody EntryRequest entryReq, 
         @AuthenticationPrincipal UserDetails creds)
@@ -53,8 +51,8 @@ public class EntryController {
         }
     }
 
-    @GetMapping("/{entryId}") //retrieving a past entry
-    public ResponseEntity<EntryResponse> findEntryResponse(@PathVariable long entryId) 
+    @GetMapping("/{entryId}")
+    public ResponseEntity<EntryReadResponse> findEntryResponse(@PathVariable long entryId) 
     //retrieve an entry obj and wrap it in a response entity
     {
         String EntryIdString = Long.toString(entryId);
@@ -65,7 +63,7 @@ public class EntryController {
             .map
             (entry -> ResponseEntity.ok
                 (
-                    new EntryResponse("Successfully retrieved entry number " + Long.toString(entry.getId()))
+                    new EntryReadResponse("Successfully retrieved entry number " + Long.toString(entry.getId()), entry.getTitle(), entry.getContent())
                 )
             )
             .orElse(ResponseEntity.notFound().build());
@@ -73,7 +71,7 @@ public class EntryController {
         catch(Exception e)
         {
             logger.log(System.Logger.Level.ERROR, "Invalid entry ID. "); 
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new EntryReadResponse("unable to retrieve entry. ", null, null));
         }
     }
     
@@ -100,13 +98,13 @@ public class EntryController {
             {
                 EService.editTitle(entryId, newTitle);
             } 
-
-            return ResponseEntity.ok(new EntryResponse("Successfully retrieved and edited entry number " + EntryIdString)); 
+            //TODO: display the new title and content here too eventually will think of something
+            return ResponseEntity.ok(new EntryResponse("Successfully retrieved and edited entry number " + EntryIdString));
         }
         catch (Exception e)
         {
-            logger.log(System.Logger.Level.ERROR, "Unable to retrieve or edit entry number " + EntryIdString + " because " + e.getMessage()); 
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null); 
+            logger.log(System.Logger.Level.ERROR, "Unable to retrieve or edit entry number" + EntryIdString + "; error: " + e.getMessage()); 
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new EntryResponse("Unable to retrieve or edit entry number " + EntryIdString)); 
         }
     }
 
@@ -124,7 +122,7 @@ public class EntryController {
             catch (Exception e)
             {
                 logger.log(System.Logger.Level.ERROR, "Unable to delete entry number " + EntryIdString + " because " + e.getMessage() + ".");
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null); 
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new EntryResponse("Unable to delete entry number " + EntryIdString)); 
             }
         }
 }
