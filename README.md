@@ -50,13 +50,13 @@ Docker
   docker run -e DATABASE_URL=... -e DATABASE_USER=... -e DATABASE_PASSWORD=... -e JWT_SECRET=... -p 8080:8080 diary-service
 
 API (summary)
-- POST /api/auth/signup — create account
-- POST /api/auth/login — returns JWT
+- POST /api/auth/signup — create account ✅
+- POST /api/auth/login — returns JWT ✅
 - GET /api/users/me — get current user
 - GET /api/entries — list entries (query by date, visibility)
-- POST /api/entries — create entry
-- PUT /api/entries/{id} — update entry
-- DELETE /api/entries/{id} — delete entry
+- POST /api/entries — create entry ✅
+- PUT /api/entries/{id} — update entry ✅
+- DELETE /api/entries/{id} — delete entry ✅
 - GET /api/streaks/me — current / best streak for authenticated user
 - GET /api/leaderboards — global leaderboard (by streak)
 
@@ -72,7 +72,7 @@ Development & CI
 MVP checklist (current)
 - [x] User signup/login
 - [ ] Create/view daily entry
-- [ ] Streak calculation per user
+- [x] Streak calculation per user
 - [ ] Leaderboard (global)
 - [ ] Privacy for entries
 - [ ] Basic UI for journal and leaderboard
