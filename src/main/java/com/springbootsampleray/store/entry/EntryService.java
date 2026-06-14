@@ -35,7 +35,6 @@ public class EntryService
         //maps to ID = 0 since the DB generates it
         LocalDate DateNow = LocalDate.now();
         Entry new_entry = new Entry(0, title, content, currUser, DateNow);  
-        int currStreak = currUser.getCurrStreak(); 
 
         //first entry ever of current user
         if (currUser.getLastEntryDate() == null)
@@ -44,21 +43,21 @@ public class EntryService
         }
         else if (ChronoUnit.DAYS.between(currUser.getLastEntryDate(), DateNow) == 1)
         {
-            SService.updateStreak(currUser, currStreak + 1 );
+            SService.updateStreak(currUser, currUser.getCurrStreak() + 1 );
         }
         else if (ChronoUnit.DAYS.between(currUser.getLastEntryDate(), DateNow) > 1)
         {
             //reset streak to 1 here
             SService.updateStreak(currUser, 1);
         }
-        else
+        else if (ChronoUnit.DAYS.between(currUser.getLastEntryDate(), DateNow) == 0)
         {
-            SService.updateStreak(currUser, currStreak); //needs to update last entry date as well 
+            SService.updateStreak(currUser, currUser.getCurrStreak()); //needs to update last entry date as well 
         }
 
-        if (currStreak > currUser.getLongestStreak())
+        if (currUser.getCurrStreak() > currUser.getLongestStreak())
         {
-            currUser.setLongestStreak(currStreak);
+            currUser.setLongestStreak(currUser.getCurrStreak());
         }
 
         ERepo.save(new_entry); 
@@ -95,7 +94,6 @@ public class EntryService
         ERepo.deleteById(entryId);
     } 
     
-    //TODO: possibly add fetch mechanism here
     public List<HomeDTO> getEntryDTOs(String Username)
     {    
         List<Entry> Entries = URepo.findByUsername(Username).getEntries();
