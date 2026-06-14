@@ -2,6 +2,7 @@ package com.springbootsampleray.store.entry;
 
 import org.springframework.stereotype.Service;
 import com.springbootsampleray.store.user.*;
+import java.time.LocalDate;
 
 @Service
 public class StreakService {
@@ -12,8 +13,14 @@ public class StreakService {
     possibly add a leaderboard endpoint further down the line
     entry operations need protection via authorization
     */
+
+    /*
+    updating current streaks only here
+    longest streaks are only changed in the controller layer
+    */ 
     public void updateStreak(User currUser, int newStreak)
     {
         currUser.setCurrStreak(newStreak);
+        currUser.setLastEntryDate(LocalDate.now());
     }
 }

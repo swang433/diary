@@ -1,6 +1,4 @@
 package com.springbootsampleray.store.user;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -9,15 +7,23 @@ import org.springframework.stereotype.Service;
 import com.springbootsampleray.store.auth.dto.SignupRequest;
 import com.springbootsampleray.store.security.JwtUtil;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import com.springbootsampleray.store.entry.*;
 
 @Service
 public class UserService implements UserDetailsService{
-    @Autowired
-    private UserRepo URepo;
-    @Autowired 
-    private JwtUtil Encrypt; 
-    @Autowired
-    private PasswordEncoder Encoder; 
+    private final UserRepo URepo;
+    private final JwtUtil Encrypt;
+    private final PasswordEncoder Encoder; 
+
+    public UserService(UserRepo repo, JwtUtil util, PasswordEncoder encoder)
+    {
+        this.URepo = repo;
+        this.Encrypt = util; 
+        this.Encoder = encoder; 
+    }
 
     public String signup(SignupRequest req)
     {
@@ -72,6 +78,20 @@ public class UserService implements UserDetailsService{
             return new org.springframework.security.core.userdetails.User(username, 
                 CurrUser.getPassword(), 
                 new ArrayList<>()); 
+        }
+    }
+
+    public User FindUserInService(String username) 
+    {
+        User UserResult = URepo.findByUsername(username); 
+        if (UserResult == null)
+        {
+            //if user not found able to catch it in the controller layer
+            throw new UsernameNotFoundException("Username not found in the system. "); 
+        }
+        else 
+        {
+            return UserResult; 
         }
     }
 }

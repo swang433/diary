@@ -9,7 +9,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import com.springbootsampleray.store.auth.dto.*;;
+import com.springbootsampleray.store.auth.dto.*;
+
+import jakarta.annotation.Nullable;;
 
 
 /*
@@ -87,17 +89,9 @@ public class EntryController {
              + " by user " + creds.getUsername() + "."); 
 
             //null checks for new title and or content
-            String newContent = entryReq.getContent();
-            String newTitle = entryReq.getTitle();  
-            if (newContent != null)
-            {
-                EService.editContent(entryId, newContent);
-            }
-
-            if (newTitle != null)
-            {
-                EService.editTitle(entryId, newTitle);
-            } 
+            @Nullable String newContent = entryReq.getContent();
+            @Nullable String newTitle = entryReq.getTitle();  
+            EService.edit(entryId, newTitle, newContent);
             //TODO: display the new title and content here too eventually will think of something
             return ResponseEntity.ok(new EntryResponse("Successfully retrieved and edited entry number " + EntryIdString));
         }

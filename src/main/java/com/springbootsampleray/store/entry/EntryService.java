@@ -1,7 +1,8 @@
 package com.springbootsampleray.store.entry;
 import java.time.LocalDate;
-import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.List;
 
 import org.springframework.stereotype.Service;
 import com.springbootsampleray.store.user.UserRepo;
@@ -34,6 +35,7 @@ public class EntryService
         //maps to ID = 0 since the DB generates it
         LocalDate DateNow = LocalDate.now();
         Entry new_entry = new Entry(0, title, content, currUser, DateNow);  
+        int currStreak = currUser.getCurrStreak(); 
 
         //first entry ever of current user
         if (currUser.getLastEntryDate() == null)
@@ -42,29 +44,25 @@ public class EntryService
         }
         else if (ChronoUnit.DAYS.between(currUser.getLastEntryDate(), DateNow) == 1)
         {
-            //TODO: update streaks++ here via streak service
-            SService.updateStreak(currUser, currUser.getCurrStreak() + 1 );
+            SService.updateStreak(currUser, currStreak + 1 );
         }
         else if (ChronoUnit.DAYS.between(currUser.getLastEntryDate(), DateNow) > 1)
         {
             //reset streak to 1 here
             SService.updateStreak(currUser, 1);
         }
-
-        if (currUser.getCurrStreak() > currUser.getLongestStreak())
+        else
         {
-            currUser.setLongestStreak(currUser.getCurrStreak());
+            SService.updateStreak(currUser, currStreak); //needs to update last entry date as well 
+        }
+
+        if (currStreak > currUser.getLongestStreak())
+        {
+            currUser.setLongestStreak(currStreak);
         }
 
         ERepo.save(new_entry); 
         URepo.save(currUser); 
-    }
-
-    public List<Entry> getEntriesByUser(long userID)
-    {
-        User currUser = URepo.findById(userID).orElseThrow(() -> 
-        new RuntimeException("User not found"));
-        return currUser.getEntries(); 
     }
 
     public Optional<Entry> findEntry(long entryId)
@@ -72,21 +70,20 @@ public class EntryService
         return ERepo.findById(entryId); 
     }
 
-    //TODO: minor optimization: the two edit functions both hit the DB
-    public void editContent(long entryId, String newContent)
+    public void edit(long entryId, String newTitle, String newContent)
     {
         Entry thisEntry = ERepo.findById(entryId)
         .orElseThrow(() -> new RuntimeException("Entry not found. ")); 
-        thisEntry.setContent(newContent);
-        ERepo.save(thisEntry); 
-    }
 
-    public void editTitle(long entryId, String newTitle)
-    {
-        Entry thisEntry = ERepo.findById(entryId)
-        .orElseThrow(() -> new RuntimeException("Entry not found. ")); 
-        thisEntry.setTitle(newTitle);
-        ERepo.save(thisEntry); 
+        if (newTitle != null)
+        {
+            thisEntry.setTitle(newTitle);    
+        }
+        if (newContent != null)
+        {   
+            thisEntry.setContent(newContent);
+        } 
+        ERepo.save(thisEntry);
     }
 
     public void deleteEntry(long entryId)
@@ -96,5 +93,14 @@ public class EntryService
             throw new RuntimeException("Entry not found"); 
         }
         ERepo.deleteById(entryId);
-    }
+    } 
+    
+    //TODO: possibly add fetch mechanism here
+    public List<HomeDTO> getEntryDTOs(String Username)
+    {    
+        List<Entry> Entries = URepo.findByUsername(Username).getEntries();
+        return Entries.stream()
+        .map(entry -> new HomeDTO(entry.getTitle(), entry.getContent(), entry.getDate()))
+        .collect(Collectors.toList());
+    } 
 }
