@@ -71,7 +71,7 @@ Development & CI
 
 MVP checklist (current)
 - [x] User signup/login
-- [ ] Create/view daily entry
+- [x] Create/view daily entry
 - [x] Streak calculation per user
 - [ ] Leaderboard (global)
 - [ ] Privacy for entries
