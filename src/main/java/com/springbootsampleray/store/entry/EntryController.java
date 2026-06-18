@@ -4,8 +4,11 @@ package com.springbootsampleray.store.entry;
 import org.springframework.web.bind.annotation.*;
 
 import java.lang.System.Logger;
+import java.nio.file.AccessDeniedException;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.config.annotation.rsocket.RSocketSecurity.AuthorizePayloadsSpec.Access;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -77,7 +80,7 @@ public class EntryController {
         }
     }
     
-    @PutMapping("/{entryId}") //editing a past entry
+    @PutMapping("/{enstryId}") //editing a past entry
     public ResponseEntity<EntryResponse> updateEntryResponse(@PathVariable long entryId
         , @RequestBody EntryRequest entryReq
         , @AuthenticationPrincipal UserDetails creds) {   
@@ -91,7 +94,7 @@ public class EntryController {
             //null checks for new title and or content
             @Nullable String newContent = entryReq.getContent();
             @Nullable String newTitle = entryReq.getTitle();  
-            EService.edit(entryId, newTitle, newContent);
+            EService.edit(creds.getUsername(), entryId, newTitle, newContent);
             //TODO: display the new title and content here too eventually will think of something
             return ResponseEntity.ok(new EntryResponse("Successfully retrieved and edited entry number " + EntryIdString));
         }
@@ -110,7 +113,7 @@ public class EntryController {
             try 
             {
                 logger.log(System.Logger.Level.INFO, "Deleting entry number " + EntryIdString); 
-                EService.deleteEntry(entryId);
+                EService.deleteEntry(creds.getUsername(), entryId);
                 return ResponseEntity.ok(new EntryResponse("Successfully deleted entry number " + EntryIdString + "."));
             }
             catch (Exception e)

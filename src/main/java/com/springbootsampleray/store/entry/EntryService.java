@@ -10,6 +10,9 @@ import com.springbootsampleray.store.user.User;
 
 import java.time.temporal.ChronoUnit;
 
+
+//the connector between the controller and the repo layers
+
 @Service
 public class EntryService 
 {   
@@ -69,10 +72,17 @@ public class EntryService
         return ERepo.findById(entryId); 
     }
 
-    public void edit(long entryId, String newTitle, String newContent)
-    {
+    public void edit(String reqUsername, long entryId, String newTitle, String newContent)
+    {   
         Entry thisEntry = ERepo.findById(entryId)
         .orElseThrow(() -> new RuntimeException("Entry not found. ")); 
+        User ReqUser = URepo.findByUsername(reqUsername); 
+
+        //check for primary key mismatch
+        if (thisEntry.getUser().getId() != ReqUser.getId())
+        {
+            throw new RuntimeException("Access denied: Not your entry. "); 
+        }
 
         if (newTitle != null)
         {
@@ -85,8 +95,18 @@ public class EntryService
         ERepo.save(thisEntry);
     }
 
-    public void deleteEntry(long entryId)
+    public void deleteEntry(String reqUsername, long entryId)
     {
+        Entry thisEntry = ERepo.findById(entryId)
+        .orElseThrow(() -> new RuntimeException("Entry not found. ")); 
+        User ReqUser = URepo.findByUsername(reqUsername); 
+
+        //check for primary key mismatch
+        if (thisEntry.getUser().getId() != ReqUser.getId())
+        {
+            throw new RuntimeException("Access denied: Not your entry. "); 
+        }
+
         if (!ERepo.existsById(entryId))
         {
             throw new RuntimeException("Entry not found"); 

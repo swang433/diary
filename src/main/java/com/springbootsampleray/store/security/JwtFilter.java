@@ -22,15 +22,19 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 @Component
 public class JwtFilter extends OncePerRequestFilter{
-    @Autowired
     private JwtUtil jwtUtil; 
-    @Autowired
     private UserDetailsService Uservice; 
+
+    public JwtFilter(JwtUtil JUtil, UserDetailsService EDService)
+    {
+        this.jwtUtil = JUtil; 
+        this.Uservice = EDService; 
+    }
 
     @Override
     protected void doFilterInternal(HttpServletRequest req, 
         HttpServletResponse response,
-         FilterChain chain) throws ServletException, IOException
+        FilterChain chain) throws ServletException, IOException
     {
         String authHeader = req.getHeader("Authorization"); 
 
@@ -59,7 +63,7 @@ public class JwtFilter extends OncePerRequestFilter{
                 SecurityContextHolder.setContext(context);
             }
         }    
-        logger.info("Successfully authenticated user" + authHeader); 
+        // logger.info("Successfully authenticated user" + authHeader); security risk
         chain.doFilter(req, response);
     }
 }
