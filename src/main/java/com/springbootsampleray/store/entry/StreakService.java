@@ -15,12 +15,16 @@ public class StreakService {
     */
 
     /*
-    updating current streaks only here
-    longest streaks are only changed in the controller layer
-    */ 
-    public void updateStreak(User currUser, int newStreak)
+    Update current streak, last entry date, and longest streak in one place.
+    This reduces races between callers and centralizes persistence-relevant logic.
+    */
+    public void updateStreak(User currUser, int newStreak, LocalDate date)
     {
         currUser.setCurrStreak(newStreak);
-        currUser.setLastEntryDate(LocalDate.now());
+        // update longest if we've unlocked a new record
+        if (newStreak > currUser.getLongestStreak()) {
+            currUser.setLongestStreak(newStreak);
+        }
+        currUser.setLastEntryDate(date);
     }
 }

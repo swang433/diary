@@ -8,6 +8,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
+import jakarta.persistence.Version;
 import java.util.List;
 import jakarta.persistence.CascadeType;
 import com.springbootsampleray.store.entry.Entry;
@@ -34,6 +35,9 @@ public class User
     private int currStreak; 
     private int longestStreak; 
     private LocalDate lastEntryDate; 
+
+    @Version
+    private Long version;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<Entry> entries;

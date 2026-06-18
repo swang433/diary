@@ -9,6 +9,7 @@ import com.springbootsampleray.store.user.UserRepo;
 import com.springbootsampleray.store.user.User;
 
 import java.time.temporal.ChronoUnit;
+import org.springframework.transaction.annotation.Transactional;
 
 
 //the connector between the controller and the repo layers
@@ -28,6 +29,7 @@ public class EntryService
         this.SService = SService; 
     }
 
+    @Transactional
     public void saveEntry(String username, String title, String content)
     {
         User currUser = URepo.findByUsername(username);
@@ -42,25 +44,20 @@ public class EntryService
         //first entry ever of current user
         if (currUser.getLastEntryDate() == null)
         {
-            SService.updateStreak(currUser, 1);
+            SService.updateStreak(currUser, 1, DateNow);
         }
         else if (ChronoUnit.DAYS.between(currUser.getLastEntryDate(), DateNow) == 1)
         {
-            SService.updateStreak(currUser, currUser.getCurrStreak() + 1 );
+            SService.updateStreak(currUser, currUser.getCurrStreak() + 1, DateNow);
         }
         else if (ChronoUnit.DAYS.between(currUser.getLastEntryDate(), DateNow) > 1)
         {
             //reset streak to 1 here
-            SService.updateStreak(currUser, 1);
+            SService.updateStreak(currUser, 1, DateNow);
         }
         else if (ChronoUnit.DAYS.between(currUser.getLastEntryDate(), DateNow) == 0)
         {
-            SService.updateStreak(currUser, currUser.getCurrStreak()); //needs to update last entry date as well 
-        }
-
-        if (currUser.getCurrStreak() > currUser.getLongestStreak())
-        {
-            currUser.setLongestStreak(currUser.getCurrStreak());
+            SService.updateStreak(currUser, currUser.getCurrStreak(), DateNow);
         }
 
         ERepo.save(new_entry); 

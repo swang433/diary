@@ -13,7 +13,7 @@ public class EntryReadResponse {
     @Nullable
     private String content; 
 
-    public EntryReadResponse(String msg, String Content, String Title)
+    public EntryReadResponse(String msg, String Title, String Content)
     {
         this.message = msg; 
         this.title = Title; 
