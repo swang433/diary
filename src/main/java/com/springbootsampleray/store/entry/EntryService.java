@@ -7,6 +7,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import com.springbootsampleray.store.user.UserRepo;
 import com.springbootsampleray.store.user.User;
+import com.springbootsampleray.store.exceptions.*;
 
 import java.time.temporal.ChronoUnit;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,7 +36,7 @@ public class EntryService
         User currUser = URepo.findByUsername(username);
         if (currUser == null)
         {   
-            throw new RuntimeException("User not found. ");
+            throw new UserNotFoundException("User not found. ");
         }
         //maps to ID = 0 since the DB generates it
         LocalDate DateNow = LocalDate.now();
@@ -78,7 +79,7 @@ public class EntryService
         //check for primary key mismatch
         if (thisEntry.getUser().getId() != ReqUser.getId())
         {
-            throw new RuntimeException("Access denied: Not your entry. "); 
+            throw new AccessDeniedException("Not your entry. "); 
         }
 
         if (newTitle != null)
@@ -96,12 +97,17 @@ public class EntryService
     {
         Entry thisEntry = ERepo.findById(entryId)
         .orElseThrow(() -> new RuntimeException("Entry not found. ")); 
-        User ReqUser = URepo.findByUsername(reqUsername); 
+        User ReqUser = URepo.findByUsername(reqUsername);
+        
+        if (ReqUser == null)
+        {
+            throw new UserNotFoundException("Unable to retrieve user. "); 
+        }
 
         //check for primary key mismatch
         if (thisEntry.getUser().getId() != ReqUser.getId())
         {
-            throw new RuntimeException("Access denied: Not your entry. "); 
+            throw new AccessDeniedException("Not your entry. "); 
         }
 
         if (!ERepo.existsById(entryId))
@@ -113,6 +119,12 @@ public class EntryService
     
     public List<HomeDTO> getEntryDTOs(String Username)
     {    
+        User CurrUser = URepo.findByUsername(Username); 
+        if (CurrUser == null)
+        {
+            throw new UserNotFoundException("Unable to retrieve entries for this user because this user might not exist. "); 
+        }
+
         List<Entry> Entries = URepo.findByUsername(Username).getEntries();
         return Entries.stream()
         .map(entry -> new HomeDTO(entry.getTitle(), entry.getContent(), entry.getDate()))
