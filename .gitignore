@@ -34,3 +34,4 @@ build/
 
 ### MacOS data storage
 .DS_Store
+.claude

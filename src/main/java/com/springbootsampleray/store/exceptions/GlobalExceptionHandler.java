@@ -8,6 +8,15 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import java.lang.System.Logger;
 
+/*
+note: 
+may still need try catch blocks despite this file when: 
+recover or fallback behavior
+translate low level behavior
+for code outside of controller flow like security configs and start up code
+clean up logic that always runs
+*/
+
 @ControllerAdvice
 public class GlobalExceptionHandler {
     public static final Logger logger = System.getLogger(GlobalExceptionHandler.class.getName());
