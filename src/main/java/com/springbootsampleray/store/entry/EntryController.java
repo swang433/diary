@@ -46,23 +46,23 @@ public class EntryController {
             EService.saveEntry(CurrUsername, entryReq.getTitle(), entryReq.getContent());
             return ResponseEntity.ok(new EntryResponse("Entry creation for user " + CurrUsername + " successful. ")); 
         }
-        catch (com.springbootsampleray.store.exceptions.EntryNotFoundException e)
+        catch (com.springbootsampleray.store.exceptions.UserNotFoundException e)
         {
-            logger.log(System.Logger.Level.ERROR, "Error creating a new journal entry. ");
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            logger.log(System.Logger.Level.ERROR, "Error creating a new journal entry because " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
             .body(new EntryResponse("Entry creation failed because " + e.getMessage())); 
         }
     }
 
     @GetMapping("/{entryId}")
-    public ResponseEntity<EntryReadResponse> findEntryResponse(@PathVariable long entryId) 
+    public ResponseEntity<EntryReadResponse> findEntryResponse(@PathVariable long entryId, @AuthenticationPrincipal UserDetails creds) 
     //retrieve an entry obj and wrap it in a response entity
     {
         String EntryIdString = Long.toString(entryId);
         try
         {
             logger.log(System.Logger.Level.INFO, "Retrieving entry number: " + EntryIdString); 
-            return EService.findEntry(entryId)
+            return EService.findEntry(creds.getUsername(), entryId)
             .map
             (entry -> ResponseEntity.ok
                 (
@@ -97,6 +97,11 @@ public class EntryController {
             
             //TODO: display the new title and content here too eventually will think of something
             return ResponseEntity.ok(new EntryResponse("Successfully retrieved and edited entry number " + EntryIdString));
+        }
+        catch(com.springbootsampleray.store.exceptions.UserNotFoundException e)
+        {
+            logger.log(System.Logger.Level.ERROR, "User " + creds.getUsername() + " not found. ");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new EntryResponse("User not found. "));
         }
         catch (com.springbootsampleray.store.exceptions.AccessDeniedException e)
         {

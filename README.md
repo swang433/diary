@@ -7,72 +7,60 @@ Overview
 
 Repository layout
 - src/main/java — application source (Spring Boot / Jakarta EE style)
-- src/main/resources — configuration, Flyway migrations, application properties
-- Dockerfile — container image for the service
-- .github/workflows — CI (build & test)
+- src/main/resources — configuration and application properties
 - README.md — this file
 
 Implemented features
-- User accounts with JWT-based auth (register / login)
-- CRUD for daily journal entries (visibility: public / friends / private)
-- Streak calculation and endpoint to query current / best streak
-- Global leaderboard endpoint (rank by current streak / longest streak)
-- Database migrations (Flyway) and relational DB support (Postgres)
+- User registration and login with JWT-based authentication
+- CRUD for daily journal entries, with ownership checks enforced at the service layer
+- Relational database support (PostgreSQL) via Spring Data JPA
+- Streak calculation with current and best streak tracked per user
 
 Not implemented / TODO
+- Flyway migrations (schema is currently managed via `ddl-auto`, not version-controlled migrations)
+- Entry visibility support: public, friends, and private
+- Global leaderboard support, ranked by streak
 - UI (mobile/web) — planned separately
 - Social features (follow, comments, likes) — future
 - Push/email reminders and notification webhooks — future
+- Dockerfile — container image for the service
+- Environment-variable injection for DB credentials and JWT secret (currently hardcoded in `application.properties`; flagged for production setup)
 
 Quick start (local)
 Prereqs: Java 17+, Maven, Postgres (or other configured RDBMS)
 
-1. Configure environment variables (example)
-    - DATABASE_URL=jdbc:postgresql://localhost:5432/diary
-    - DATABASE_USER=diary
-    - DATABASE_PASSWORD=secret
-    - JWT_SECRET=a-very-secret-key
-    - SERVER_PORT=8080
+1. Configure `src/main/resources/application.properties` with your local Postgres connection details and a JWT secret.
 
 2. Build
     mvn clean package
 
 3. Run
-    java -jar target/diary-*.jar
+    java -jar target/Diary-*.jar
 
 4. Run tests
     mvn test
 
-Docker
-- Build:
-  docker build -t diary-service .
-- Run:
-  docker run -e DATABASE_URL=... -e DATABASE_USER=... -e DATABASE_PASSWORD=... -e JWT_SECRET=... -p 8080:8080 diary-service
-
 API (summary)
-- POST /api/auth/signup — create account ✅
-- POST /api/auth/login — returns JWT ✅
-- GET /api/users/me — get current user
-- GET /api/entries — list entries (query by date, visibility)
-- POST /api/entries — create entry ✅
-- PUT /api/entries/{id} — update entry ✅
-- DELETE /api/entries/{id} — delete entry ✅
-- GET /api/streaks/me — current / best streak for authenticated user
-- GET /api/leaderboards — global leaderboard (by streak)
+- POST /auth/signup — create account ✅
+- POST /auth/login — returns JWT ✅
+- GET /me/home — homepage with streaks and entries ✅
+- POST /entries/newjournal — create entry ✅
+- GET /entries/{id} — retrieve entry (ownership-checked) ✅
+- PUT /entries/{id} — update entry (ownership-checked) ✅
+- DELETE /entries/{id} — delete entry (ownership-checked) ✅
+- GET /streaks/me — current / best streak for authenticated user (TODO)
+- GET /leaderboards — global leaderboard (TODO)
 
 Notes & considerations
 - Timezone handling: entries are tied to a user's local date; ensure client supplies timezone or user profile has timezone.
 - Multiple entries per day: streaks count based on at least one entry per local date.
-- Security: validate input and protect endpoints; rate-limit as needed.
-
-Development & CI
-- GitHub Actions builds and runs tests on push/PR.
-- Dockerfile supports building a runtime image for deployments.
+- Security: ownership checks are enforced in the service layer for entry read/update/delete; entries cannot be accessed across users.
 
 MVP checklist (current)
 - [x] User signup/login
 - [x] Create/view daily entry
 - [x] Streak calculation per user
+- [x] Ownership authorization on entry endpoints
 - [ ] Leaderboard (global)
-- [ ] Privacy for entries
+- [ ] Entry visibility (public/friends/private)
 - [ ] Basic UI for journal and leaderboard

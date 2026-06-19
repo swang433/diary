@@ -65,16 +65,36 @@ public class EntryService
         URepo.save(currUser); 
     }
 
-    public Optional<Entry> findEntry(long entryId)
+    public Optional<Entry> findEntry(String Username, long entryId)
     {
-        return ERepo.findById(entryId); 
+        Optional<Entry> result = ERepo.findById(entryId); 
+        User ReqUser = URepo.findByUsername(Username); 
+        if (ReqUser == null)
+        {
+            throw new UserNotFoundException("User not found. "); 
+        }
+        if (result.isEmpty()) 
+        {
+            throw new EntryNotFoundException("Entry not found. ");
+        }
+        if (result.get().getUser().getId() != ReqUser.getId()) 
+        {
+            throw new AccessDeniedException("Not your entry. ");
+        }
+    
+        return result; 
     }
 
     public void edit(String reqUsername, long entryId, String newTitle, String newContent)
     {   
         Entry thisEntry = ERepo.findById(entryId)
-        .orElseThrow(() -> new RuntimeException("Entry not found. ")); 
+        .orElseThrow(() -> new EntryNotFoundException("Entry not found. ")); 
         User ReqUser = URepo.findByUsername(reqUsername); 
+
+        if (ReqUser == null)
+        {
+            throw new UserNotFoundException("User not found. "); 
+        }
 
         //check for primary key mismatch
         if (thisEntry.getUser().getId() != ReqUser.getId())
@@ -96,7 +116,7 @@ public class EntryService
     public void deleteEntry(String reqUsername, long entryId)
     {
         Entry thisEntry = ERepo.findById(entryId)
-        .orElseThrow(() -> new RuntimeException("Entry not found. ")); 
+        .orElseThrow(() -> new EntryNotFoundException("Entry not found. ")); 
         User ReqUser = URepo.findByUsername(reqUsername);
         
         if (ReqUser == null)
@@ -109,11 +129,10 @@ public class EntryService
         {
             throw new AccessDeniedException("Not your entry. "); 
         }
-
-        if (!ERepo.existsById(entryId))
-        {
-            throw new EntryNotFoundException("Entry not found"); 
-        }
+        // if (!ERepo.existsById(entryId))
+        // {
+        //     throw new EntryNotFoundException("Entry not found"); 
+        // }
         ERepo.deleteById(entryId);
     } 
     
