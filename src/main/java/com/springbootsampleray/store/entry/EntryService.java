@@ -112,7 +112,7 @@ public class EntryService
 
         if (!ERepo.existsById(entryId))
         {
-            throw new RuntimeException("Entry not found"); 
+            throw new EntryNotFoundException("Entry not found"); 
         }
         ERepo.deleteById(entryId);
     } 
