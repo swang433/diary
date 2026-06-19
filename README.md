@@ -41,15 +41,15 @@ Prereqs: Java 17+, Maven, Postgres (or other configured RDBMS)
     mvn test
 
 API (summary)
-- POST /auth/signup — create account ✅
-- POST /auth/login — returns JWT ✅
-- GET /me/home — homepage with streaks and entries ✅
-- POST /entries/newjournal — create entry ✅
-- GET /entries/{id} — retrieve entry (ownership-checked) ✅
-- PUT /entries/{id} — update entry (ownership-checked) ✅
-- DELETE /entries/{id} — delete entry (ownership-checked) ✅
-- GET /streaks/me — current / best streak for authenticated user (TODO)
-- GET /leaderboards — global leaderboard (TODO)
+- [x] POST /auth/signup — create account
+- [x] POST /auth/login — returns JWT 
+- [x] GET /me/home — homepage with streaks and entries 
+- [x] POST /entries/newjournal — create entry 
+- [x] GET /entries/{id} — retrieve entry (ownership-checked) 
+- [x] PUT /entries/{id} — update entry (ownership-checked) 
+- [x] DELETE /entries/{id} — delete entry (ownership-checked) 
+- [ ] GET /streaks/me — current / best streak for authenticated user (TODO)
+- [ ] GET /leaderboards — global leaderboard (TODO)
 
 Notes & considerations
 - Timezone handling: entries are tied to a user's local date; ensure client supplies timezone or user profile has timezone.
