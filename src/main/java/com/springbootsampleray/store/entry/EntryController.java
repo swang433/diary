@@ -1,146 +1,71 @@
 package com.springbootsampleray.store.entry;
 
-//RestController, RequestMapping, PostMapping, RequestBody
 import org.springframework.web.bind.annotation.*;
 
 import java.lang.System.Logger;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import com.springbootsampleray.store.auth.dto.*;
 
-import jakarta.annotation.Nullable;;
-
-
-/*
-extract username from a security context, 
-this way users can only access their own entruees
-do NOT take userID from a request body
-
-role: returns entries or a success message
-*/
+import jakarta.annotation.Nullable;
 
 @RestController
 @RequestMapping("/entries")
 public class EntryController {
-    private final EntryService EService; 
-    public static final Logger logger = System.getLogger(EntryController.class.getName()); 
+    private final EntryService EService;
+    public static final Logger logger = System.getLogger(EntryController.class.getName());
 
     public EntryController(EntryService eService)
     {
-        this.EService = eService; 
+        this.EService = eService;
     }
 
-    @PostMapping("/newjournal") 
-    //creating a new entry
-    public ResponseEntity<EntryResponse> saveEntryResponse(@RequestBody EntryRequest entryReq, 
+    @PostMapping("/newjournal")
+    public ResponseEntity<EntryResponse> saveEntryResponse(@RequestBody EntryRequest entryReq,
         @AuthenticationPrincipal UserDetails creds)
     {
-        try
-        {
-            String CurrUsername = creds.getUsername(); 
-            logger.log(System.Logger.Level.INFO, "Entry save attempt by " + CurrUsername); 
-            EService.saveEntry(CurrUsername, entryReq.getTitle(), entryReq.getContent());
-            return ResponseEntity.ok(new EntryResponse("Entry creation for user " + CurrUsername + " successful. ")); 
-        }
-        catch (com.springbootsampleray.store.exceptions.UserNotFoundException e)
-        {
-            logger.log(System.Logger.Level.ERROR, "Error creating a new journal entry because " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-            .body(new EntryResponse("Entry creation failed because " + e.getMessage())); 
-        }
+        String CurrUsername = creds.getUsername();
+        logger.log(System.Logger.Level.INFO, "Entry save attempt by " + CurrUsername);
+        EService.saveEntry(CurrUsername, entryReq.getTitle(), entryReq.getContent());
+        return ResponseEntity.ok(new EntryResponse("Entry creation for user " + CurrUsername + " successful. "));
     }
 
     @GetMapping("/{entryId}")
-    public ResponseEntity<EntryReadResponse> findEntryResponse(@PathVariable long entryId, @AuthenticationPrincipal UserDetails creds) 
-    //retrieve an entry obj and wrap it in a response entity
+    public ResponseEntity<EntryReadResponse> findEntryResponse(@PathVariable long entryId, @AuthenticationPrincipal UserDetails creds)
     {
-        String EntryIdString = Long.toString(entryId);
-        try
-        {
-            logger.log(System.Logger.Level.INFO, "Retrieving entry number: " + EntryIdString); 
-            return EService.findEntry(creds.getUsername(), entryId)
-            .map
-            (entry -> ResponseEntity.ok
-                (
-                    new EntryReadResponse("Successfully retrieved entry number " + Long.toString(entry.getId()), entry.getTitle(), entry.getContent())
-                )
-            )
+        logger.log(System.Logger.Level.INFO, "Retrieving entry number: " + entryId);
+        return EService.findEntry(creds.getUsername(), entryId)
+            .map(entry -> ResponseEntity.ok(
+                new EntryReadResponse("Successfully retrieved entry number " + entry.getId(), entry.getTitle(), entry.getContent())
+            ))
             .orElse(ResponseEntity.notFound().build());
-        }
-        catch(com.springbootsampleray.store.exceptions.EntryNotFoundException e)
-        {
-            logger.log(System.Logger.Level.ERROR, "Invalid entry ID. "); 
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new EntryReadResponse("unable to retrieve entry. ", null, null));
-        }
-    }
-    
-    @PutMapping("/{entryId}") //editing a past entry
-    public ResponseEntity<EntryResponse> updateEntryResponse(@PathVariable long entryId
-        , @RequestBody EntryRequest entryReq
-        , @AuthenticationPrincipal UserDetails creds) {   
-        String EntryIdString = Long.toString(entryId);
-        try
-        {
-            logger.log(System.Logger.Level.INFO, "Retrieving entry number for editing : "
-             + EntryIdString
-             + " by user " + creds.getUsername() + "."); 
-
-
-            //null checks for new title and or content
-            @Nullable String newContent = entryReq.getContent();
-            @Nullable String newTitle = entryReq.getTitle();  
-            EService.edit(creds.getUsername(), entryId, newTitle, newContent);
-            
-            //TODO: display the new title and content here too eventually will think of something
-            return ResponseEntity.ok(new EntryResponse("Successfully retrieved and edited entry number " + EntryIdString));
-        }
-        catch(com.springbootsampleray.store.exceptions.UserNotFoundException e)
-        {
-            logger.log(System.Logger.Level.ERROR, "User " + creds.getUsername() + " not found. ");
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new EntryResponse("User not found. "));
-        }
-        catch (com.springbootsampleray.store.exceptions.AccessDeniedException e)
-        {
-            logger.log(System.Logger.Level.ERROR, "Access denied from user: " + creds.getUsername());
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new EntryResponse(e.getMessage()));   
-        }
-        catch (com.springbootsampleray.store.exceptions.EntryNotFoundException e)
-        {
-            logger.log(System.Logger.Level.ERROR, "Unable to retrieve or edit entry number" + EntryIdString + "; error: " + e.getMessage()); 
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new EntryResponse("Unable to retrieve or edit entry number " + EntryIdString + "because it does not exist. ")); 
-        }
     }
 
-    @DeleteMapping("/{entryId}") //deleting an existing entry
-    public ResponseEntity<EntryResponse> deleteEntryResponse(@PathVariable long entryId
-        , @AuthenticationPrincipal UserDetails creds)
-        {
-            String EntryIdString = Long.toString(entryId);
-            String CurrUsername = creds.getUsername(); 
-            try 
-            {
-                logger.log(System.Logger.Level.INFO, "Deleting entry number " + EntryIdString); 
-                EService.deleteEntry(CurrUsername, entryId);
-                return ResponseEntity.ok(new EntryResponse("Successfully deleted entry number " + EntryIdString + "."));
-            }
-            catch(com.springbootsampleray.store.exceptions.UserNotFoundException e)
-            {
-                logger.log(System.Logger.Level.ERROR, "User " + CurrUsername + " does not exist. "); 
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new EntryResponse(e.getMessage())); 
-            }
-            catch (com.springbootsampleray.store.exceptions.AccessDeniedException e)
-            {
-                logger.log(System.Logger.Level.ERROR, "Access denied from user: " + CurrUsername);
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new EntryResponse(e.getMessage()));   
-            }
-            catch (com.springbootsampleray.store.exceptions.EntryNotFoundException e)
-            {
-                logger.log(System.Logger.Level.ERROR, "Unable to delete entry number " + EntryIdString + " because " + e.getMessage() + ".");
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new EntryResponse("Unable to delete entry number " + EntryIdString)); 
-            }
-        }
+    @PutMapping("/{entryId}")
+    public ResponseEntity<EntryResponse> updateEntryResponse(@PathVariable long entryId,
+        @RequestBody EntryRequest entryReq,
+        @AuthenticationPrincipal UserDetails creds)
+    {
+        logger.log(System.Logger.Level.INFO, "Retrieving entry number for editing : "
+            + entryId + " by user " + creds.getUsername() + ".");
+
+        @Nullable String newContent = entryReq.getContent();
+        @Nullable String newTitle = entryReq.getTitle();
+        EService.edit(creds.getUsername(), entryId, newTitle, newContent);
+
+        return ResponseEntity.ok(new EntryResponse("Successfully retrieved and edited entry number " + entryId));
+    }
+
+    @DeleteMapping("/{entryId}")
+    public ResponseEntity<EntryResponse> deleteEntryResponse(@PathVariable long entryId,
+        @AuthenticationPrincipal UserDetails creds)
+    {
+        String CurrUsername = creds.getUsername();
+        logger.log(System.Logger.Level.INFO, "Deleting entry number " + entryId);
+        EService.deleteEntry(CurrUsername, entryId);
+        return ResponseEntity.ok(new EntryResponse("Successfully deleted entry number " + entryId + "."));
+    }
 }

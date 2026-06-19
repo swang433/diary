@@ -6,6 +6,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import com.springbootsampleray.store.auth.dto.SignupRequest;
 import com.springbootsampleray.store.security.JwtUtil;
+import com.springbootsampleray.store.exceptions.DuplicateUserException;
+import com.springbootsampleray.store.exceptions.InvalidCredentialsException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -30,7 +32,7 @@ public class UserService implements UserDetailsService{
         String newName = req.getUsername(); 
         if (URepo.findByUsername(newName) != null)
         {
-            throw new RuntimeException("User already exists."); 
+            throw new DuplicateUserException("User already exists.");
         }
         else
         {
@@ -48,7 +50,7 @@ public class UserService implements UserDetailsService{
     {
         if (URepo.findByUsername(username) == null)
         {   
-            throw new RuntimeException("Cannot find username in the system."); 
+            throw new InvalidCredentialsException("Cannot find username in the system.");
         }
         else 
         {
@@ -56,7 +58,7 @@ public class UserService implements UserDetailsService{
             //check against hashed version of the password
             if (!Encoder.matches(password, CurrUser.getPassword())) //incorrect password path 
             {
-                throw new RuntimeException("Failure to authenticate: incorrect password. "); 
+                throw new InvalidCredentialsException("Failure to authenticate: incorrect password. ");
             }
             else //correct password path
             {
