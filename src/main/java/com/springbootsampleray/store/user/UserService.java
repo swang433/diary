@@ -9,10 +9,6 @@ import com.springbootsampleray.store.security.JwtUtil;
 import com.springbootsampleray.store.exceptions.DuplicateUserException;
 import com.springbootsampleray.store.exceptions.InvalidCredentialsException;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import com.springbootsampleray.store.entry.*;
 
 @Service
 public class UserService implements UserDetailsService{

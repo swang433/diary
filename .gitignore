@@ -4,6 +4,9 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 
+### hide env variables like database password
+.env
+
 ### STS ###
 .apt_generated
 .classpath
